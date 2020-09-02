@@ -1,0 +1,12 @@
+{% extends 'base.html '%}
+
+{% block content %}
+	<h1> Criar novo arquivo! </h1>
+	<br>
+	<form method="POST" action="/nomes/create/">
+		{% csrf_token %}
+		{{ form }}
+		<br> <br> <br>
+		<input type="submit" name="Gravar">
+	</form>
+{% endblock %}

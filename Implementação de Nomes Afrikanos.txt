@@ -1,0 +1,738 @@
+=================================================================
+PREPARAÇÃO DO AMBIENTE
+=================================================================
+1º Instalando o django. Na linha de comando:
+	pip install django
+	
+2º Instalando a zona virtual django.
+	pip install virtualenv	
+	
+3º Criar zona virtual para nomes_afrikanos
+	mkvirtualenv kundiama 
+	ou
+	virtualenv kundiama
+	
+4º Ativar o ambiente novamente
+	workon kundiama
+	
+=================================================================
+CRIAÇÃO DO PROJECTO
+=================================================================
+1º Encontre o local que queres criar a pasta do projecto, digite o comando:
+	django-admin.py startproject nomes_afrikanos
+
+2º Ligar o servidor para executar o projecto.
+	--No cmd, Entre na pasta do projecto com: 
+	cd nomes_afrikanos
+	
+	--depois executar
+	python manage.py runserver
+	
+	--No navegador, colar na barra de endereços: http://localhost:8000
+
+3º Na pasta do projecto, abra o ficheiro URLS.PY, adiciona dentro do urlpatterns:
+	#páginas iniciais
+    url(r'^$', views.index, name="index"),
+    url(r'^sobre/$', views.sobre, name="sobre"),
+    url(r'^contato/$', views.contato),
+		
+	--Adiciona também os imports todos:
+	from django.contrib import admin
+	from django.urls import path, include
+	from django.conf.urls import url
+	from . import views
+	
+4º Na subpasta do projecto, crie um ficheiro de nome views.py
+	--dentro da mesma coloque:
+
+	from django.http import HttpResponse
+	from django.shortcuts import render
+
+	#Função que retorna a página inicial
+	def index(request):
+		return HttpResponse('Index')
+		
+	def sobre(request):
+		return HttpResponse('sobre')
+
+	def contacto(request):
+		return HttpResponse('contacto')
+		
+5º Na subpasta do projecto, cria uma pasta de nome: templates
+--dentro dela, crie o ficheiro: index.html, sobre.html e contacto.html
+--configure estes de acordo o front-end desejado
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Nomes Afrikanos </title>
+	</head>
+	
+	<body>
+		Benvindo
+	</body>
+</html>
+
+6º Vá no ficheiro settings.py, encontra o TEMPLATES, dentro da 
+opção DIRS:[], coloque o caminho que leva até a pasta templates do projecto no seu computador.
+
+Ex: 'DIRS': ['C:/Users/BelissimaV/Documents/portifolio/Aplicativos Projectos/nomes_afrikanos/nomes_afrikanos/templates/nomes_afrikanos'],
+
+7º Modifique o ficheiro VIEWS.PY usando return render em vez de HttpResponse
+
+	from django.http import HttpResponse
+	from django.shortcuts import render
+
+	#Função que retorna a página inicial
+	def index(request):
+		return render(request, 'index.html')
+	
+	def sobre(request):
+		return render(request, 'sobre.html')
+
+	def contacto(request):
+		return HttpResponse('Contacto')
+
+8º Executar para ver como está a ficar o projecto
+	
+	python manage.py runserver
+	--No navegador, colar na barra de endereços: 
+	http://localhost:8000 
+	http://127.0.0.1:8000/sobre/ 
+	http://127.0.0.1:8000/contacto/
+
+=================================================================
+CRIAÇÃO DOS APLICATIVOS NOME, CONTA
+=================================================================
+1º criar uma aplicação, escreva na linha de comando...
+	python manage.py startapp contas
+	python manage.py startapp nomes
+	
+1.1º Registe os aplicativos no projeto. Na pasta do projeto
+No ficheiro SETTINGS.PY, encontra opção INSTALLED_APPS 
+e adiciona os aplicativos criados: 
+
+	INSTALLED_APPS = [
+		'django.contrib.admin',
+		'django.contrib.auth',
+		'django.contrib.contenttypes',
+		'django.contrib.sessions',
+		'django.contrib.messages',
+		'django.contrib.staticfiles',
+
+		'contas',
+		'nomes',
+	]
+
+2º Na pasta do aplicativo nomes, cria uma pasta de nome: templates e subpasta nomes
+	--dentro dela, crie o ficheiro: lista_nomes.html
+	--configure a index de acordo o front-end
+	
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<title> Nomes Afrikanos </title>
+		</head>
+	
+		<body>
+			Lista de Nomes
+		</body>
+	</html>
+
+3º Na pasta do aplicativo nomes, no views.py
+	
+	from django.shortcuts import render
+
+	# Create your views here.
+	def lista_nomes(request):
+		return render(request, 'nomes/nomes.html')
+		
+4º Na pasta do projecto, vá ao ficheiro urls.py, adiciona a url do aplicativo
+
+from django.contrib import admin
+from django.urls import path, include
+from django.conf.urls import url
+from . import views
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+
+    #páginas iniciais
+    url(r'^$', views.index, name="index"),
+    url(r'^sobre/$', views.sobre, name="sobre"),
+    url(r'^contacto/$', views.contacto),
+
+    #Páginas dos aplicativos
+    url(r'^nomes/', include('nomes.urls')),
+]
+
+5º Execute o projeto no navegador para ver o andamento do mesmo...
+	6.1º No cmd, escreva: python manage.py runserver
+	6.2º No navegador teste os links:
+		http://127.0.0.1:8000/
+		http://127.0.0.1:8000/nomes/
+		
+=================================================================
+CRIAÇÃO DOS MODELOS E BASE DE DADOS 
+(ver modelo físico da base de dados em anexo)
+=================================================================
+1º No aplicativo armazem, abrir o ficheiro MODELS.PY e adicionar:
+
+#Familia do Produto (codigo, nome)
+class FamiliaProduto(models.Model):
+	codigo_familia_produto = models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='Código')
+	nome_familia_produto = models.CharField(max_length=50)
+
+def __str__(self):
+	return self.nome_familia_produto
+
+2º Para gravar os dados na tabela use o código de migração no cmd
+	python manage.py makemigrations
+	python manage.py migrate
+	
+=================================================================
+ADICIONAR MODELOS NA PÁGINA DE ADMINISTRAÇÃO DO DJANGO
+=================================================================
+1º Criar um super usuário na linha de comando:
+	-- python manage.py createsuperuser
+	-- Username: teste
+	-- Email: teste@kundiama.com
+	-- Password: kundiama2020
+	
+2º Execute o projeto e abra o admin 
+	-- python manage.py runserver
+	-- http://127.0.0.1:8000/admin/
+	
+Para registar o modelo (tabelas) do aplicativo na pagina de admin, 
+vá ao ficheiro admin do aplicativo:
+
+3º Vá na pagina ADMIN.PY do app nomes e...importa o modelo e registe-o
+	from django.contrib import admin
+	from .models import Nome
+
+	# Register your models here.
+	admin.site.register(Nome)
+
+=================================================================
+MOSTRAR DADOS DA BASE DE DADOS NA PÁGINA HTML
+=================================================================
+1º Abrir o ficheiro VIEWS.PY
+1.1 - Importar o modelo;
+1.2 - Criar variavel que busque a pesquisa da base de dados;
+1.3 - Adicionar a variavel criada ao link html da página;
+
+from django.shortcuts import render
+from . models import Nome
+
+# Create your views here.
+def lista_nomes(request):
+	#return render(request, 'nomes/lista_nomes.html')
+	nomes = Nome.objects.all().order_by('nome') #buscar todos os produtos
+	return render(request, 'nomes/lista_nomes.html', {'nome':nomes})
+
+2º Modificar o html para aceitar dados da base de dados
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Nomes Afrikanos </title>
+	</head>
+	
+	<body>
+		Lista de Nomes
+		<br> <br>
+		{% for nomes in nome %}
+			{{ nomes.codigo_nome }}  <br>
+			{{ nomes.nome  }}  <br>
+			{{ nomes.significado  }}  <br>
+		{% endfor %}
+	</body>
+</html>
+
+=================================================================
+CONFIGURAÇÃO PARA FICHEIROS ESTATICOS COMO CSS E JS
+=======================================================================
+1º Importar o ficheiro de url para staticfiles no ficheiro URLS.PY da pasta do projecto  
+	from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+	
+2º Acrescentar a variavel que concatena o link do staticfiles_urlpatterns depois do fechar do parentes recto da url
+	urlpatterns+=staticfiles_urlpatterns()
+	
+3º No ficheiro SETTINGS.PY por baixo do STATIC_URL linha 121, aumentar o codigo que indica a 
+pasta onde irá ficar os nossos ficheiros estáticos:
+	STATICFILES_DIR=(os.path.join(BASE_DIR,'static'),)
+	
+4º Criar pasta static dentro do projecto,
+-- Aqui ficará os ficheiros de estilo do template da página
+
+........................ FICHEIRO URL COMPLETO
+from django.contrib import admin
+from django.urls import path, include
+from django.conf.urls import url
+from . import views
+
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.conf.urls.static import static
+from django.conf import settings
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+
+    #páginas iniciais
+    url(r'^$', views.index, name="index"),
+    url(r'^sobre/$', views.sobre, name="sobre"),
+    url(r'^contacto/$', views.contacto),
+
+    #Páginas dos aplicativos
+    url(r'^nomes/', include('nomes.urls')),
+    #url(r'^contas/', include('contas.urls', namespace='contas')), 
+]
+
+urlpatterns+=staticfiles_urlpatterns() #para ficheiros estáticos
+
+........................ FICHEIRO SETTINGS.PY no final
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+........................ FICHEIRO HTML chamando o ficheiro css
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Nomes Afrikanos </title>
+
+		<link rel="stylesheet" type="text/css" href="static/estilo.css">
+	</head>
+	
+	<body>
+		<p> Benvindo </p> 
+	</body>
+</html>
+=================================================================
+EXTENDENDO OS TEMPLATES
+=======================================================================
+1º Referimos no principio do html que vamos usar ficheiros estáticos: 
+	{% load static from staticfiles %}
+Definimos o local que ficará o ficheiro importado com:
+	{% block content %} e {% endblock %}
+	
+
+Definimos no principio que vamos extender um layout com:
+	{% extends 'nome.html' %}
+	
+Outros ficheiros da mesma ficam em:
+
+	{% block content %} e {% endblock %}
+	
+Desta forma, chamamos o css no html da seguinte forma:
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Nomes Afrikanos </title>
+
+		<link rel="stylesheet" type="text/css" href="{% static 'estilo.css' %}">
+	</head>
+	
+	<body>
+		<p> Benvindo </p> 
+	</body>
+</html>
+
+2º Dividimos o template em bases pequenas (cabeçalho, corpo, rodapé)
+2.1º Na pasta template do projecto criamos o base.html com estrutura base do html
+
+................... PÁGINA BASE.HTML
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Nomes Afrikanos </title>
+
+		<link rel="stylesheet" type="text/css" href="{% static 'estilo.css' %}">
+	</head>
+	
+	<body>
+		{% block content %}
+
+		{% endblock %}
+
+		<h1> Wild Hogs </h1> 
+	</body>
+</html>
+
+................... PÁGINA INDEX.HTML
+{% extends 'base.html' %}
+
+{% block content %}
+	<p> Benvindo a página </p> 
+{% endblock %}
+
+=================================================================
+PARAMETROS DA URL - DETALHE NOME (SLUG) (URL NOMEADOS)
+=======================================================================
+1º Abra o ficheiro url do app nomes
+	from django.conf.urls import url
+	from . import views
+
+	urlpatterns = [
+		url(r'^$', views.lista_nomes),
+		url(r'^(?P<slug>[\w-]+)/$', views.nome_detalhe),
+	]
+	
+2º Criar novo método na views.py
+	
+from django.shortcuts import render
+from . models import Nome
+from django.http import HttpResponse
+
+# Create your views here.
+def lista_nomes(request):
+	#return render(request, 'nomes/lista_nomes.html')
+	nomes = Nome.objects.all().order_by('nome') #buscar todos os produtos
+	return render(request, 'nomes/lista_nomes.html', {'nome':nomes})
+
+def nome_detalhe(request, slug):
+	return HttpResponse(slug)
+	
+3º Executar para testar slug: 
+	http://127.0.0.1:8000/nomes/diassi-lua-sim/
+	
+4º Dar nome as urls no ficheiro urls.py e usa-los no link html
+
+-------------------------------------------------------
+Pegar detalhe do nome através de um link e slug 
+-------------------------------------------------------
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Nomes Afrikanos </title>
+	</head>
+	
+	<body>
+		Lista de Nomes
+		<br> <br>
+		{% for nomes in nome %}
+			{{ nomes.codigo_nome }}  <br>
+			<a href="{% url 'detalhe' slug=nomes.slug %}"> {{ nomes.nome  }} </a> <br>
+			{{ nomes.significado  }}  <br>
+		{% endfor %}
+	</body>
+</html>
+
+=================================================================
+CONFIGURAÇÃO PARA CARREGAR IMAGENS
+=================================================================
+1º Ir a pasta settings.py do projecto e acrescentar no final:
+	MEDIA_URL = '/media/'
+	MEDIA_ROOT= os.path.join(BASE_DIR,'media')
+	
+2º Ir a pasta urls.py do projecto e acrescentar imports e caminho das imagens
+	from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+	from django.conf.urls.static import static
+	from django.conf import settings	
+	
+	urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)	
+	
+=================================================================
+APLICATIVO PARA CONTROLAR CONTAS DE USUÁRIOS
+=================================================================
+1º Criar ficheiro urls.py, nela, importar e configurar urls
+	from django.conf.urls import url
+	from . import views
+
+	#app_name='contas'
+
+	urlpatterns = [
+		url(r'^cadastrar/$', views.cadastro_view, name="cadastrar")
+	]
+	
+2º Registar urls da do aplicativo Contas na URLS do projecto Kantina
+	urlpatterns = [
+    path('admin/', admin.site.urls),
+
+    #páginas iniciais
+    url(r'^$', views.index, name="index"),
+    url(r'^sobre/$', views.sobre, name="sobre"),
+    url(r'^contacto/$', views.contacto),
+
+    #Páginas dos aplicativos
+    url(r'^nomes/', include('nomes.urls')),
+    url(r'^contas/', include('contas.urls', namespace='contas')), 
+]
+
+3º Criar funções no ficheiro VIEWS.PY do app contas
+	from django.shortcuts import render
+	from django.contrib.auth.forms import UserCreationForm
+
+	# Create your views here.
+	def cadastro_view(request):
+		return render(request, 'contas/cadastro.html')
+		
+4º Na pasta do app, criar pasta templates, subpasta contas e dentro de contas criar o ficheiro cadastro.html
+	{% extends 'base.html' %}
+
+	{% block content %}
+		Cadastro
+	{% endblock %}
+	
+5º Executar projecto...
+	-- No cmd: python manage.py runserver
+	-- No navegador: http://127.0.0.1:8000/contas/cadastrar/
+	
+--------------------------------------------
+TODAS AS CONFIGURAÇÕES DE CADASTRO E LOGIN
+--------------------------------------------
+1º VIEWS.PY
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm #para cadastro
+from django.contrib.auth.forms import AuthenticationForm #para login
+from django.contrib.auth import login, logout
+ 
+# Create your views here.
+def cadastro_view(request):
+	if request.method == 'POST':
+		formulario = UserCreationForm(request.POST) #se os dados forem do tipo POST
+	
+		if formulario.is_valid(): #se o form for válido
+			user = formulario.save() #guardar os dados do usuario
+			login(request, user)
+			#logar usuario
+			return redirect('lista') #ver ficheiro urls para obter nome do app e do link
+	else: 
+		formulario = UserCreationForm()
+	return render(request, 'contas/cadastro.html',{'formulario':formulario})
+
+def login_view(request):
+	if request.method == 'POST':
+		form = AuthenticationForm(data=request.POST)
+		if form.is_valid():
+			user = form.get_user()
+			login(request, user)
+			#entrar na pagina inicial do usuário
+			#return render(request, 'kantina/index.html')
+			return redirect('lista') 
+	else:
+		form = AuthenticationForm()
+
+	return render(request, 'contas/login.html',{'form':form})
+
+	
+2º URLS.PY
+	
+--------------------------------------------
+USUÁRIOS DE TESTE
+--------------------------------------------
+Paulo - Paulo10093
+teste200 - kundiama2020
+
+=============================================================
+Executar o LOGOUT dos usuários no Aplicativo Conta
+=============================================================
+
+1º Adicionar na URLS o link de logout
+	url(r'^logout/$', views.logout_view, name ="logout")
+
+2º Na views, acrescentar o import e o método logout
+	from django.contrib.auth import login, logout
+
+3º Criar método de logout
+	
+	def logout_view(request):
+		if request.method == 'POST':
+			logout(request)
+			return redirect('redeAcademica:pagina_inicial')
+			
+4º Na pagina de HTML base acrescentar form equivalente ao logout com apenas um botão
+	
+	<form class="logout-link" action="{% url 'contas:logout' %}" method="post"> 
+    	{% csrf_token %}
+       	<input type="submit" value="Sair">
+    </form>
+	
+===============================================================
+CRIAR NOVO NOME AFRIKANO
+===============================================================	
+1º Na urls.py acrescentar a url de criar:
+	from django.conf.urls import url
+	from . import views
+
+	#app_name='nomes'
+
+	urlpatterns = [
+		url(r'^$', views.lista_nomes, name="lista"),
+		url(r'^create/$', views.criar_nome, name="criar"),
+		url(r'^(?P<slug>[\w-]+)/$', views.nome_detalhe, name="detalhe"),
+	]
+	
+2º Na views.py acrescentar o método de cadastro do nome 
+	def criar_nome(request):
+		return render(request, 'nomes/cadastrar_nome.html')
+		
+3º Na pasta de templates do app nomes, criar o html cadastar_nome.html
+	{% extends 'base.html '%}
+
+	{% block content %}
+		<h1> Criar novo arquivo! </h1>
+	{% endblock %}
+	
+4º Testar o avanço da plataforma:
+	http://127.0.0.1:8000/nomes/create/
+ 
+===============================================================
+OBRIGAR LOGIN PARA PROTEGER AS PÁGINAS
+===============================================================
+-- No arquivo views importar:
+from django.contrib.auth.decorators import login_required
+
+--Por cima de todo método que querermos que tenha acesso obrigatório com login colocar
+@login_required(login_url="/contas/login/") #obriga a buscar login antes de executar a função!
+
+===============================================================
+FORMULÁRIOS
+===============================================================
+1º No app, criar o ficheiro FORMS.PY
+
+2º Importar a biblioteca de forms e modelos
+	from django import forms
+	from . import models
+	
+3º Criar a classe com os atributos que aparecerão no formulario
+	from django import forms
+	from . import models
+
+	class CriarNome(forms.ModelForm):
+		class Meta:
+			model = models.Nome 
+			fields = ['nome', 'significado', 'slug']
+			
+4º Chamar o formulario na página html
+	@login_required(login_url="/contas/login/") #obriga a buscar login antes de executar a função!
+	def criar_nome(request):
+		if request.method == 'POST':
+			form = forms.CriarNome(request.POST)
+			if form.is_valid():
+				#gravar na base de dados e redirecionar a lista de nomes atualizada
+				return redirect('lista')
+		else:
+			form = forms.CriarNome()
+			return render(request, 'nomes/cadastrar_nome.html', {'form':form})
+		
+5º Melhorar o HTML para chamar o formuário CRIAR NOME.HTML
+
+{% extends 'base.html '%}
+
+{% block content %}
+	<h1> Criar novo arquivo! </h1>
+	<br>
+	<form method="POST" action="/nomes/create/">
+		{% csrf_token %}
+		{{ form }}
+		<br> <br> <br>
+		<input type="submit" name="Gravar">
+	</form>
+{% endblock %}
+
+===============================================================
+CHAVES ESTRANGEIRAS - USUÁRIOS
+===============================================================
+1º Importar o modelo com a chave primária
+	from django.contrib.auth.models import User
+	
+2º Acrescentar chave estrangeira no models.py
+	#referente ao usuário que inseriu o nome
+	autor_nome = models.ForeignKey(User, default=None, on_delete=models.CASCADE)
+
+3º O model completo fica (models.py):
+	from django.db import models
+from django.contrib.auth.models import User
+
+# Create your models here.
+class Nome(models.Model):
+	codigo_nome = models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='Código do Nome')
+	nome = models.CharField(max_length=50)
+	significado = models.CharField(max_length=50)
+	detalhes = models.TextField()
+	slug = models.SlugField()
+	data_cadastro = models.DateTimeField(auto_now_add=True)
+
+	#referente ao usuário que inseriu o nome
+	autor_nome = models.ForeignKey(User, default=None, on_delete=models.CASCADE)
+
+	def __str__(self):
+		return self.nome
+
+	def snippet(self):
+		return self.detalhes[:50] + '...'
+
+-------------------------------------------------------
+Salvar dados (nome vindo do formulario) com a chave estrangeira (views.py)
+-------------------------------------------------------
+@login_required(login_url="/contas/login/") #obriga a buscar login antes de executar a função!
+def criar_nome(request):
+	if request.method == 'POST':
+		form = forms.CriarNome(request.POST)
+		if form.is_valid():
+			#gravar na base de dados e redirecionar a lista de nomes atualizada
+			instance = form.save(commit=False)
+			instance.autor_nome = request.user #buscar usuario
+			instance.save()
+			return redirect('lista')
+	else:
+		form = forms.CriarNome()
+		return render(request, 'nomes/cadastrar_nome.html', {'form':form})
+
+-------------------------------------------------------
+Testar a aplicação - Criar nome e automaticamente lista-lo
+
+No cmd: python manage.py runserver
+No browser: http://127.0.0.1:8000/nomes/create/
+-------------------------------------------------------
+
+===============================================================
+VERIFICAR SE O USUÁRIO ESTÁ LOGADO
+===============================================================
+1º Circundar o botão de logout com a verificação de sessão do usuário
+	{% if user.is_authenticated %}
+		formulario de logout
+	{% else %}
+		efetuar o login
+    {% endif %}
+	
+2º Codificando fica:
+	{% if user.is_authenticated %}
+		<form class="logout-link" action="{% url 'logout' %}" method="post"> 
+    		{% csrf_token %}
+       		<input type="submit" value="Sair">
+    	</form>
+    	{% else %}
+    	<a href="{% url 'contas:login' %}"> Login </a>
+    	<a href="{% url 'contas:cadastrar' %}"> Cadastrar </a>
+    	{% endif %}
+		
+===============================================================
+REDIRECIONAR A PÁGINA INICIAL
+===============================================================
+1º Importar as views na URLS.PY do projecto
+	from nomes import views as nomes_views
+	
+2º Trocar a url do index
+	urlpatterns = [
+    path('admin/', admin.site.urls),
+
+    #páginas iniciais
+    #url(r'^$', views.index, name="index"),
+    url(r'^$', nomes_views.lista_nomes, name="index"),
+    url(r'^sobre/$', views.sobre, name="sobre"),
+    url(r'^contacto/$', views.contacto),
+
+    #Páginas dos aplicativos
+    url(r'^nomes/', include('nomes.urls')),
+    url(r'^contas/', include('contas.urls')), 
+]
+
+===============================================================
+ESTILIZANDO A PÁGINA
+===============================================================

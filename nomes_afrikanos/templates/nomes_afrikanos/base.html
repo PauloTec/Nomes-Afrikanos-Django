@@ -1,0 +1,29 @@
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Nomes Afrikanos </title>
+
+		<link rel="stylesheet" type="text/css" href="{% static 'estilo.css' %}">
+	</head>
+	
+	<body>
+		{% if user.is_authenticated %}
+		<form class="logout-link" action="{% url 'logout' %}" method="post"> 
+    		{% csrf_token %}
+       		<input type="submit" value="Sair">
+    	</form>
+    	{% else %}
+    	<a href="{% url 'contas:login' %}"> Login </a>
+    	<a href="{% url 'contas:cadastrar' %}"> Cadastrar </a>
+    	{% endif %}
+
+		{% block content %}
+
+		{% endblock %}
+
+		<a href="{% url 'lista' %}"> 
+			<img src="{% static 'imagemlogin.png' %}">
+		</a>  
+	</body>
+</html>

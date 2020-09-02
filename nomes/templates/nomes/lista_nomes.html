@@ -1,0 +1,19 @@
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Nomes Afrikanos </title>
+
+		<link rel="stylesheet" type="text/css" href="{% static 'estilo.css' %}">
+	</head>
+	
+	<body>
+		Lista de Nomes
+		<br> <br>
+		{% for nomes in nome %}
+			{{ nomes.codigo_nome }}  <br>
+			<a href="{% url 'detalhe' slug=nomes.slug %}"> {{ nomes.nome  }} </a> <br>
+			{{ nomes.significado  }}  <br>
+		{% endfor %}
+	</body>
+</html>
